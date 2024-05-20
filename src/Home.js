@@ -1,29 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
-import "./App.css";
+import { GoogleMap, Marker, Circle } from "@react-google-maps/api";
 import TopNavbar from "./TopNavbar";
 import BottomNavigationBar from "./BottomNavigationBar";
-import { makeStyles } from "@mui/styles";
+import Box from "@mui/material/Box";
 import { auth } from "./firebaseConfig";
 import { useNavigate } from "react-router-dom";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebaseConfig"; // Assicurati che il percorso sia corretto
-import { InfoWindow } from "@react-google-maps/api";
-import BottomSheet from "./BottomSheet"; // Assicurati che il percorso sia corretto
-import NoteCard from "./NoteCard"; // Assicurati che il percorso sia corretto
-import { Box } from "@mui/material";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { db } from "./firebaseConfig";
+import BottomSheet from "./BottomSheet";
+import NoteCard from "./NoteCard";
+import Typography from "@mui/material/Typography"; // Aggiungi questa importazione
 
-const useStyles = makeStyles({
-  container: {
-    width: "100%",
-    padding: 0,
-    margin: 0,
-  },
-  mapContainer: {
-    width: "100vw",
-    height: "100vh",
-  },
-});
+const Container = {
+  width: "100%",
+  padding: 0,
+  margin: 0,
+};
+
+const MapContainer = {
+  width: "100vw",
+  height: "100vh",
+};
 
 const mapStyles = [
   {
@@ -31,15 +28,11 @@ const mapStyles = [
     elementType: "labels.text.fill",
     stylers: [{ color: "#444444" }],
   },
-  {
-    featureType: "landscape",
-    elementType: "all",
-    stylers: [{ color: "#f2f2f2" }],
-  },
+
   {
     featureType: "poi",
     elementType: "all",
-    stylers: [{ visibility: "off" }],
+    stylers: [{ visibility: "on" }],
   },
   {
     featureType: "road",
@@ -52,30 +45,31 @@ const mapStyles = [
     stylers: [{ visibility: "simplified" }],
   },
   {
-    featureType: "road.arterial",
-    elementType: "labels.icon",
-    stylers: [{ visibility: "off" }],
+    featureType: "landscape.man_made",
+    elementType: "all",
+    stylers: [{ visibility: "on" }],
   },
   {
-    featureType: "transit",
-    elementType: "all",
+    featureType: "poi",
+    elementType: "labels.text",
     stylers: [{ visibility: "off" }],
-  },
-  {
-    featureType: "water",
-    elementType: "all",
-    stylers: [{ color: "#46bcec" }, { visibility: "on" }],
   },
 ];
 
-function Home() {
+function Home({ userId }) {
   const [currentPosition, setCurrentPosition] = useState(null);
-  const classes = useStyles();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [visibleNotes, setVisibleNotes] = useState([]);
   const mapRef = useRef(null);
+  const rangemax = 0.03;
+
+  const isBottomSheetOpenRef = useRef(isBottomSheetOpen);
+
+  useEffect(() => {
+    isBottomSheetOpenRef.current = isBottomSheetOpen;
+  }, [isBottomSheetOpen]);
 
   const onMapIdle = () => {
     if (mapRef.current) {
@@ -86,7 +80,25 @@ function Home() {
             note.location.lat,
             note.location.lng
           );
-          return bounds.contains(notePos);
+          const currentPositionLatLng = new window.google.maps.LatLng(
+            currentPosition.lat,
+            currentPosition.lng
+          );
+          let distanceInKm = 0;
+
+          if (
+            window.google.maps &&
+            window.google.maps.geometry &&
+            window.google.maps.geometry.spherical
+          ) {
+            distanceInKm =
+              window.google.maps.geometry.spherical.computeDistanceBetween(
+                notePos,
+                currentPositionLatLng
+              ) / 1000;
+          }
+
+          return distanceInKm <= rangemax;
         });
         setVisibleNotes(visibleNotes);
       }
@@ -135,6 +147,20 @@ function Home() {
     fetchNotes();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "notes"), (snapshot) => {
+      const newNotes = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setNotes(newNotes);
+    });
+
+    // Pulisci l'ascoltatore quando il componente si smonta
+    return () => unsubscribe();
+  }, []);
+
   const mapOptions = {
     streetViewControl: false,
     scaleControl: false,
@@ -146,79 +172,148 @@ function Home() {
     styles: mapStyles,
   };
 
-  const zoom = 20;
+  const zoom = 19;
 
   if (!user) {
     return <div>Verifica della sessione in corso...</div>;
   }
 
-  // Funzione per aprire la bottom sheet
-  const handleOpenBottomSheet = () => {
-    setIsBottomSheetOpen(true);
-  };
-
-  // Funzione per chiudere la bottom sheet
   const handleCloseBottomSheet = () => {
     setIsBottomSheetOpen(false);
   };
 
+  function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    var R = 6371;
+    var dLat = deg2rad(lat2 - lat1);
+    var dLon = deg2rad(lon2 - lon1);
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    return d;
+  }
+
+  function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+  }
+
   return (
-    <div className={classes.container}>
+    <div style={Container}>
       <TopNavbar />
-      <LoadScript googleMapsApiKey="AIzaSyCLMxvG8P-3tdauSGnGM5hETaSwviiILvw">
-        <GoogleMap
-          mapContainerClassName={classes.mapContainer}
-          center={currentPosition}
-          zoom={zoom}
-          onClick={handleOpenBottomSheet}
-          options={mapOptions}
-          onLoad={(map) => (mapRef.current = map)}
-          onIdle={onMapIdle}
-        >
-          {notes.map((note, index) => (
-            <Marker
-              key={index}
-              position={{ lat: note.location.lat, lng: note.location.lng }}
-              onClick={() => setSelectedNote(note)}
-              icon={{
-                url: "note-sticky-solid.svg", // Sostituisci con il tuo URL dell'icona SVG
-                // Opzionalmente, puoi specificare la dimensione
-                scaledSize: new window.google.maps.Size(30, 30), // dimensioni dell'icona
-              }}
-            />
-          ))}
-          {currentPosition && (
+
+      <GoogleMap
+        mapContainerStyle={MapContainer}
+        center={currentPosition}
+        zoom={zoom}
+        options={mapOptions}
+        onLoad={(map) => (mapRef.current = map)}
+        onIdle={onMapIdle}
+      >
+        {notes.map((note, index) => {
+          if (note.location && currentPosition) {
+            const distance = getDistanceFromLatLonInKm(
+              currentPosition.lat,
+              currentPosition.lng,
+              note.location.lat,
+              note.location.lng
+            );
+
+            if (distance <= rangemax) {
+              return (
+                <Marker
+                  key={index}
+                  position={{
+                    lat: note.location.lat,
+                    lng: note.location.lng,
+                  }}
+                  onClick={() => {
+                    setSelectedNote(note);
+                    setIsBottomSheetOpen(true);
+                  }}
+                  icon={{
+                    url: "note-sticky-solid.svg",
+                    scaledSize: new window.google.maps.Size(30, 30),
+                  }}
+                />
+              );
+            }
+          }
+
+          return null;
+        })}
+        {currentPosition && (
+          <>
             <Marker
               position={currentPosition}
               icon={{
-                url: "location-dot-solid.svg", // Sostituisci con il tuo URL dell'icona SVG
-                // Opzionalmente, puoi specificare la dimensione
-                scaledSize: new window.google.maps.Size(30, 30), // dimensioni dell'icona
+                url: "location-dot-solid.svg",
+                scaledSize: new window.google.maps.Size(30, 30),
               }}
             />
-          )}
-          {selectedNote && (
-            <InfoWindow
-              position={{
-                lat: selectedNote.location.lat,
-                lng: selectedNote.location.lng,
+            <Circle
+              center={currentPosition}
+              radius={rangemax * 1000}
+              options={{
+                strokeColor: "#bad1ff",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#dadde3",
+                fillOpacity: 0.35,
               }}
-              onCloseClick={() => setSelectedNote(null)}
-            >
-              <div>
-                <p>{selectedNote.userName}</p>
-                <p>{selectedNote.text}</p>
-              </div>
-            </InfoWindow>
-          )}
-        </GoogleMap>
-      </LoadScript>
+              onClick={() => {
+                setIsBottomSheetOpen(true);
+              }}
+            />
+          </>
+        )}
+      </GoogleMap>
       <BottomNavigationBar />
-      <BottomSheet open={isBottomSheetOpen} onClose={handleCloseBottomSheet}>
+      <BottomSheet
+        open={isBottomSheetOpen}
+        onClose={() => {
+          setSelectedNote(null);
+          setIsBottomSheetOpen(false);
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: "bold", textAlign: "center", p: 2, pb: 1 }}
+        >
+          Feed
+        </Typography>
         <Box sx={{ overflow: "auto", maxHeight: "50vh" }}>
-          {visibleNotes.map((note) => (
-            <NoteCard key={note.id} note={note} />
-          ))}
+          {selectedNote && userId ? (
+            <NoteCard
+              key={selectedNote.id}
+              note={selectedNote}
+              userId={userId}
+              onDelete={() => {
+                setSelectedNote(null);
+                setIsBottomSheetOpen(false);
+              }}
+            />
+          ) : (
+            notes
+              .filter((note) => {
+                if (note.location && currentPosition) {
+                  const distance = getDistanceFromLatLonInKm(
+                    currentPosition.lat,
+                    currentPosition.lng,
+                    note.location.lat,
+                    note.location.lng
+                  );
+                  return distance <= rangemax;
+                }
+                return false;
+              })
+              .map((note) => (
+                <NoteCard key={note.id} note={note} userId={userId} />
+              ))
+          )}
         </Box>
       </BottomSheet>
     </div>
