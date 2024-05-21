@@ -303,13 +303,7 @@ const Home = ({ userId, username }) => {
           setIsBottomSheetOpen(false);
         }}
       >
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: "bold", textAlign: "center", p: 2, pb: 1 }}
-        >
-          Feed
-        </Typography>
-        <Box sx={{ overflow: "auto", maxHeight: "50vh" }}>
+        <Box sx={{ overflow: "auto", maxHeight: "80vh" }}>
           {selectedNote && userId ? (
             <NoteCard
               key={selectedNote.id}

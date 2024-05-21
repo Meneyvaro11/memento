@@ -1,8 +1,8 @@
 // BottomSheet.js
-import React from 'react';
-import Slide from '@mui/material/Slide';
-import Drawer from '@mui/material/Drawer';
-import Box from '@mui/material/Box';
+import React from "react";
+import Slide from "@mui/material/Slide";
+import Drawer from "@mui/material/Drawer";
+import Box from "@mui/material/Box";
 
 const BottomSheet = ({ open, onClose, children }) => {
   return (
@@ -13,18 +13,16 @@ const BottomSheet = ({ open, onClose, children }) => {
       transitionDuration={250}
       PaperProps={{
         sx: {
-          position: 'absolute',
+          position: "absolute",
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8,
-          height: 'auto',
-          maxHeight: '50%',
+          height: "auto",
+          maxHeight: "100%",
         },
       }}
     >
       <Slide direction="up" in={open} mountOnEnter unmountOnExit>
-        <Box>
-          {children}
-        </Box>
+        <Box>{children}</Box>
       </Slide>
     </Drawer>
   );

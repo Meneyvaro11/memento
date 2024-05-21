@@ -41,6 +41,8 @@ const NoteCard = ({ note, onDelete, userId }) => {
   const [liked, setLiked] = useState(
     note.likes && note.likes.some((like) => like.userId === userId)
   );
+  const currentUser = auth.currentUser;
+  const username = currentUser.displayName; // Assumendo che l'username sia salvato come displayName
 
   useEffect(() => {
     const noteRef = doc(db, "notes", note.id);
@@ -282,15 +284,17 @@ const NoteCard = ({ note, onDelete, userId }) => {
                 </IconButton>
               </Tooltip>
               <Typography variant="body2">0{note.shares}</Typography>
-              <Tooltip title="Elimina">
-                <IconButton
-                  style={{ color: "red" }}
-                  aria-label="delete"
-                  onClick={() => handleDelete(note.id)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Tooltip>
+              {username === note.userName && (
+                <Tooltip title="Elimina">
+                  <IconButton
+                    style={{ color: "red" }}
+                    aria-label="delete"
+                    onClick={() => handleDelete(note.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
             </CardActions>
           </Box>
         </Box>
