@@ -22,6 +22,20 @@ function BottomNavigationBar() {
     setOpen(false);
   };
 
+  const styleNavigation = {
+    position: "fixed",
+    bottom: 10,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    width: "90%",
+    backgroundColor: "#3f51b5",
+    padding: "5px",
+    margin: "auto",
+    borderRadius: 50,
+    color: "white",
+  };
+
   const style = {
     position: "fixed",
     bottom: 0,
@@ -38,6 +52,7 @@ function BottomNavigationBar() {
   return (
     <>
       <BottomNavigation
+        sx={styleNavigation}
         value={value}
         onChange={(event, newValue) => {
           if (newValue === 1) {
@@ -48,17 +63,22 @@ function BottomNavigationBar() {
           }
         }}
         showLabels
-        style={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
       >
         <BottomNavigationAction
+          style={{ color: "white" }}
           label="Esplora"
-          icon={<HomeIcon />}
+          icon={<HomeIcon style={{ color: "white" }} />}
           onClick={() => navigate("/")}
         />
-        <BottomNavigationAction label="Aggiungi" icon={<AddIcon />} />
         <BottomNavigationAction
+          style={{ color: "white" }}
+          label="Aggiungi"
+          icon={<AddIcon style={{ color: "white" }} />}
+        />
+        <BottomNavigationAction
+          style={{ color: "white" }}
           label="Profilo"
-          icon={<ProfileIcon />}
+          icon={<ProfileIcon style={{ color: "white" }} />}
           onClick={() => navigate("/profilo")}
         />
       </BottomNavigation>

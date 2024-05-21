@@ -56,7 +56,7 @@ const mapStyles = [
   },
 ];
 
-function Home({ userId }) {
+const Home = ({ userId, username }) => {
   const [currentPosition, setCurrentPosition] = useState(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -64,8 +64,28 @@ function Home({ userId }) {
   const [visibleNotes, setVisibleNotes] = useState([]);
   const mapRef = useRef(null);
   const rangemax = 0.03;
-
   const isBottomSheetOpenRef = useRef(isBottomSheetOpen);
+  const [position, setPosition] = useState({});
+  const zoom = mapRef.current ? mapRef.current.zoom : 19;
+
+  useEffect(() => {
+    if (!mapRef.current) {
+      mapRef.current = { zoom: 19 };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition((position) => {
+        setPosition({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      });
+    } else {
+      console.log("Geolocation is not supported by this browser.");
+    }
+  }, []);
 
   useEffect(() => {
     isBottomSheetOpenRef.current = isBottomSheetOpen;
@@ -171,8 +191,6 @@ function Home({ userId }) {
     fullscreenControl: false,
     styles: mapStyles,
   };
-
-  const zoom = 19;
 
   if (!user) {
     return <div>Verifica della sessione in corso...</div>;
@@ -311,13 +329,18 @@ function Home({ userId }) {
                 return false;
               })
               .map((note) => (
-                <NoteCard key={note.id} note={note} userId={userId} />
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  userId={userId}
+                  username={username}
+                />
               ))
           )}
         </Box>
       </BottomSheet>
     </div>
   );
-}
+};
 
 export default Home;

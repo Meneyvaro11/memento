@@ -13,9 +13,12 @@ import Home from "./Home";
 import AddNote from "./AddNote";
 import Profilo from "./Profilo";
 import { LoadScript } from "@react-google-maps/api";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./firebaseConfig";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [username, setUsername] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -32,6 +35,22 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  // Recupera lo username quando l'userId cambia
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (currentUser) {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnapshot = await getDoc(userRef);
+        const userData = userSnapshot.data();
+        setUsername(userData ? userData.username : null);
+      } else {
+        setUsername(null);
+      }
+    };
+
+    fetchUsername();
+  }, [currentUser]);
+
   return (
     <LoadScript googleMapsApiKey="AIzaSyDEkaa4poCV0gbL93m1AzdZohGboPO9rpg">
       <Router>
@@ -47,9 +66,13 @@ function App() {
             />
             <Route
               path="/"
-              element={<Home userId={currentUser ? currentUser.uid : null} />}
+              element={
+                <Home
+                  userId={currentUser ? currentUser.uid : null}
+                  username={username}
+                />
+              }
             />
-
             <Route path="/Profilo" element={<Profilo />} />
             <Route path="/addnote" element={<AddNote />} />
           </Routes>

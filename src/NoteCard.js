@@ -1,5 +1,18 @@
-// NoteCard.js
+// React
 import { useState, useEffect } from "react";
+
+// Firebase
+import {
+  doc,
+  deleteDoc,
+  updateDoc,
+  onSnapshot,
+  getDoc,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { db, auth } from "./firebaseConfig";
+
+// Material UI
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
@@ -11,14 +24,6 @@ import ShareIcon from "@mui/icons-material/Share";
 import Avatar from "@mui/material/Avatar";
 import CardActions from "@mui/material/CardActions";
 import Box from "@mui/material/Box";
-import {
-  doc,
-  deleteDoc,
-  updateDoc,
-  onSnapshot,
-  getDoc,
-} from "firebase/firestore";
-import { db } from "./firebaseConfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -29,6 +34,7 @@ import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
 
 const NoteCard = ({ note, onDelete, userId }) => {
   const [likes, setLikes] = useState(note.likes ? note.likes.length : 0);
@@ -46,6 +52,30 @@ const NoteCard = ({ note, onDelete, userId }) => {
     // Pulizia alla dismontaggio
     return () => unsubscribe();
   }, [note.id]);
+
+  const [url, setUrl] = useState("");
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      if (auth.currentUser) {
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          setUrl(docSnap.data().profileImageUrl);
+        }
+      }
+    };
+  }, []);
+
+  const deleteComment = async (index) => {
+    const newComments = [...note.comments];
+    newComments.splice(index, 1);
+
+    await updateDoc(doc(db, "notes", note.id), {
+      comments: newComments,
+    });
+  };
 
   const handleLike = async () => {
     const noteRef = doc(db, "notes", note.id);
@@ -105,25 +135,32 @@ const NoteCard = ({ note, onDelete, userId }) => {
     setOpen(false);
   };
 
-  // Aggiungi una funzione per gestire l'invio di un nuovo commento
   const handleCommentSubmit = async () => {
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+    const username = auth.currentUser?.displayName;
+
+    if (!username || !userId) {
+      console.error("Username or userId is undefined");
+      return;
+    }
+
     const noteRef = doc(db, "notes", note.id);
 
-    // Crea un nuovo oggetto commento
-    const newComment = { userId: userId, text: comment };
+    const newComment = {
+      userId: userId,
+      username: username,
+      text: comment,
+      profileImageUrl: url,
+    }; // Modifica qui
 
-    // Aggiungi il nuovo commento all'array di commenti
     const newComments = note.comments
       ? [...note.comments, newComment]
       : [newComment];
 
-    // Aggiorna il documento con i nuovi commenti
     await updateDoc(noteRef, { comments: newComments });
 
-    // Pulisci il campo di input
     setComment("");
-
-    // Chiudi il dialog
     handleClose();
   };
 
@@ -177,44 +214,64 @@ const NoteCard = ({ note, onDelete, userId }) => {
               <Typography variant="body2">{likes}</Typography>
 
               <Tooltip title="Commenta">
-                <IconButton onClick={handleClickOpen}>
-                  <CommentIcon />
-                </IconButton>
+                <div>
+                  <IconButton onClick={handleClickOpen}>
+                    <CommentIcon />
+                  </IconButton>
 
-                <Dialog open={open} onClose={handleClose}>
-                  <DialogTitle>Commenti</DialogTitle>
-                  <DialogContent>
-                    <List>
-                      {note.comments &&
-                        note.comments.map((comment, index) => (
-                          <ListItem key={index}>
-                            <ListItemText
-                              primary={comment.text}
-                              secondary={`Commentato da: ${comment.userId}`}
-                            />
-                          </ListItem>
-                        ))}
-                    </List>
-                    <TextField
-                      autoFocus
-                      margin="dense"
-                      id="comment"
-                      label="Aggiungi un commento"
-                      type="text"
-                      fullWidth
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                    />
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                      Annulla
-                    </Button>
-                    <Button onClick={handleCommentSubmit} color="primary">
-                      Invia
-                    </Button>
-                  </DialogActions>
-                </Dialog>
+                  <Dialog
+                    open={open}
+                    onClose={handleClose}
+                    PaperProps={{
+                      style: {
+                        height: "100vh",
+                        width: "100vw",
+                      },
+                    }}
+                  >
+                    <Box display="flex" flexDirection="column" height="100vh">
+                      <DialogTitle>Commenti</DialogTitle>
+                      <DialogContent>
+                        <List>
+                          {note.comments &&
+                            note.comments.map((comment, index) => (
+                              <ListItem key={index}>
+                                <ListItemAvatar>
+                                  <Avatar src={comment.profileImageUrl} />
+                                </ListItemAvatar>
+                                <ListItemText
+                                  primary={comment.text}
+                                  secondary={`${comment.username}`}
+                                />
+                              </ListItem>
+                            ))}
+                        </List>
+                      </DialogContent>
+                      <Box display="flex" justifyContent="center">
+                        <TextField
+                          autoFocus
+                          margin="dense"
+                          id="comment"
+                          label="Aggiungi un commento"
+                          type="text"
+                          fullWidth
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          style={{ width: "80%" }}
+                        />
+                      </Box>
+                    </Box>
+
+                    <DialogActions>
+                      <Button onClick={handleClose} color="primary">
+                        Annulla
+                      </Button>
+                      <Button onClick={handleCommentSubmit} color="primary">
+                        Invia
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                </div>
               </Tooltip>
               <Typography variant="body2">
                 {note.comments ? note.comments.length : 0}
