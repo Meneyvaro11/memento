@@ -9,7 +9,6 @@ import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import BottomSheet from "./BottomSheet";
 import NoteCard from "./NoteCard";
-import Typography from "@mui/material/Typography"; // Aggiungi questa importazione
 
 const Container = {
   width: "100%",
@@ -65,7 +64,6 @@ const Home = ({ userId, username }) => {
   const mapRef = useRef(null);
   const rangemax = 0.03;
   const isBottomSheetOpenRef = useRef(isBottomSheetOpen);
-  const [position, setPosition] = useState({});
   const zoom = mapRef.current ? mapRef.current.zoom : 19;
 
   useEffect(() => {

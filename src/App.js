@@ -10,6 +10,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import SignUp from "./signup";
 import SignIn from "./signin";
 import Home from "./Home";
+import Notifications from "./Notifications";
 import AddNote from "./AddNote";
 import Profilo from "./Profilo";
 import { LoadScript } from "@react-google-maps/api";
@@ -56,6 +57,7 @@ function App() {
       <Router>
         <div>
           <Routes>
+            <Route path="/notifications" element={<Notifications />} />
             <Route
               path="/signup"
               element={currentUser ? <Navigate to="/" /> : <SignUp />}

@@ -4,6 +4,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useState } from "react";
 import { Autocomplete } from "@mui/material";
 import TextField from "@mui/material/TextField";
+import { Link } from "react-router-dom";
 
 const StyledAppBar = styled(AppBar)({
   position: "fixed",
@@ -70,9 +71,11 @@ function TopNavbar() {
             )}
           />
         </Box>
-        <IconButton color="inherit" style={{ marginLeft: "0rem" }}>
-          <NotificationsIcon />
-        </IconButton>
+        <Link to="/notifications">
+          <IconButton style={{ marginLeft: "0rem", color: "white" }}>
+            <NotificationsIcon />
+          </IconButton>
+        </Link>
       </Toolbar>
     </StyledAppBar>
   );
