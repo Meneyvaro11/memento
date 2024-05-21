@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { auth } from "./firebaseConfig"; // Aggiorna il percorso se necessario
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "./firebaseConfig"; // Aggiorna il percorso se necessario
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { styled } from "@mui/system";
 
 import { TextField, Button, Typography, Box } from "@mui/material";
@@ -18,6 +19,7 @@ const CenterBox = styled(Box)({
 function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -26,7 +28,18 @@ function SignUp() {
     setError("");
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Aggiungi l'username all'utente in Firebase Authentication
+      await updateProfile(user, {
+        displayName: username,
+      });
+
       navigate("/");
     } catch (error) {
       setError(error.message);
@@ -40,6 +53,15 @@ function SignUp() {
       </Typography>
       {error && <Typography color="error">{error}</Typography>}
       <form onSubmit={handleSignUp} style={{ marginTop: "20px" }}>
+        <TextField
+          label="Username"
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
         <TextField
           variant="outlined"
           margin="normal"
