@@ -76,12 +76,17 @@ const Home = ({ userId, username }) => {
 
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.watchPosition((position) => {
-        setPosition({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-      });
+      navigator.geolocation.watchPosition(
+        (position) => {
+          setPosition({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.log("Error updating position: ", error);
+        }
+      );
     } else {
       console.log("Geolocation is not supported by this browser.");
     }
@@ -190,6 +195,7 @@ const Home = ({ userId, username }) => {
     rotateControl: false,
     fullscreenControl: false,
     styles: mapStyles,
+    gestureHandling: "greedy",
   };
 
   if (!user) {

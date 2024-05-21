@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { auth, db } from "./firebaseConfig"; // Aggiorna il percorso se necessario
+import { auth } from "./firebaseConfig"; // Aggiorna il percorso se necessario
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 import { styled } from "@mui/system";
 
 import { TextField, Button, Typography, Box } from "@mui/material";
