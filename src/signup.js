@@ -47,9 +47,14 @@ function SignUp() {
 
   return (
     <CenterBox component="main">
-      <Typography component="h1" variant="h5">
-        Registrati
-      </Typography>
+      <img
+        src="/logo.png"
+        alt="Logo"
+        style={{
+          width: "250px",
+          height: "auto",
+        }}
+      />{" "}
       {error && <Typography color="error">{error}</Typography>}
       <form onSubmit={handleSignUp} style={{ marginTop: "20px" }}>
         <TextField
@@ -90,8 +95,8 @@ function SignUp() {
         >
           Registrati
         </Button>
-        <Box textAlign="center">
-          <Link to="/signin" variant="body2">
+        <Box textAlign="center" style={{ marginTop: "50px" }}>
+          <Link to="/signin" variant="body2" style={{ color: "#40916c" }}>
             {"Sei già registrato? Accedi"}
           </Link>
         </Box>

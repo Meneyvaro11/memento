@@ -18,10 +18,12 @@
 }
 
 .card {
-  border: 1px solid #ccc;
+  background-color: #40916c;
+  color: white;
   border-radius: 15px;
   padding: 5px;
   transition: 0.3s;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 .card:hover {

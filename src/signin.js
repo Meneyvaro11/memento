@@ -6,6 +6,32 @@ import { TextField, Button, Typography, Box } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google"; // Importa l'icona di Google
 import { styled } from "@mui/system";
 
+const StyledTextField = styled(TextField)({
+  "& label.Mui-focused": {
+    color: "white",
+  },
+  "& label": {
+    color: "white",
+  },
+  "& .MuiInput-underline:after": {
+    borderBottomColor: "white",
+  },
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: "white",
+    },
+    "&:hover fieldset": {
+      borderColor: "white",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "white",
+    },
+  },
+  "& .MuiInputBase-input": {
+    color: "white",
+  },
+});
+
 const CenterBox = styled(Box)({
   display: "flex",
   flexDirection: "column",
@@ -43,13 +69,21 @@ function SignIn() {
   };
 
   return (
-    <CenterBox component="main">
-      <Typography component="h1" variant="h5">
-        Accedi
-      </Typography>
+    <CenterBox
+      component="main"
+      style={{ backgroundColor: "#40916c", color: "#ffffff" }} // Aggiungi questa riga
+    >
+      <img
+        src="/logo_white.png"
+        alt="Logo"
+        style={{
+          width: "250px",
+          height: "auto",
+        }}
+      />{" "}
       {error && <Typography color="error">{error}</Typography>}
       <form onSubmit={handleSignIn} style={{ marginTop: "20px" }}>
-        <TextField
+        <StyledTextField
           variant="outlined"
           margin="normal"
           required
@@ -59,7 +93,7 @@ function SignIn() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <TextField
+        <StyledTextField
           variant="outlined"
           margin="normal"
           required
@@ -74,7 +108,11 @@ function SignIn() {
           fullWidth
           variant="contained"
           color="primary"
-          style={{ margin: "20px 0 10px" }}
+          style={{
+            margin: "20px 0 10px",
+            backgroundColor: "#ffffff",
+            color: "#40916c",
+          }}
         >
           Accedi
         </Button>
@@ -83,12 +121,12 @@ function SignIn() {
           variant="outlined"
           startIcon={<GoogleIcon />}
           onClick={handleGoogleSignIn}
-          style={{ margin: "10px 0" }}
+          style={{ margin: "10px 0", backgroundColor: "#ffffff" }}
         >
           Accedi con Google
         </Button>
-        <Box textAlign="center">
-          <Link to="/signup" variant="body2">
+        <Box textAlign="center" style={{ marginTop: "50px" }}>
+          <Link to="/signup" variant="body2" style={{ color: "#fff" }}>
             {"Non hai un account? Registrati"}
           </Link>
         </Box>

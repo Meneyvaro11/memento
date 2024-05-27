@@ -13,7 +13,7 @@ const StyledAppBar = styled(AppBar)({
   right: 0,
   zIndex: 1000,
   width: "95%",
-  backgroundColor: "#3f51b5",
+  backgroundColor: "#40916c",
   padding: "10px",
   margin: "auto",
   borderRadius: 50,

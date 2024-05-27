@@ -16,6 +16,15 @@ import Profilo from "./Profilo";
 import { LoadScript } from "@react-google-maps/api";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#40916c",
+    },
+  },
+});
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -53,50 +62,52 @@ function App() {
   }, [currentUser]);
 
   return (
-    <LoadScript googleMapsApiKey="AIzaSyDEkaa4poCV0gbL93m1AzdZohGboPO9rpg">
-      <Router>
-        <div>
-          <Routes>
-            <Route path="/notifications" element={<Notifications />} />
-            <Route
-              path="/signup"
-              element={currentUser ? <Navigate to="/" /> : <SignUp />}
-            />
-            <Route
-              path="/signin"
-              element={currentUser ? <Navigate to="/" /> : <SignIn />}
-            />
-            <Route
-              path="/"
-              element={
-                <Home
-                  userId={currentUser ? currentUser.uid : null}
-                  username={username}
-                />
-              }
-            />
-            <Route
-              path="/Profilo"
-              element={
-                <Profilo
-                  userId={currentUser ? currentUser.uid : null}
-                  username={username}
-                />
-              }
-            />
-            <Route
-              path="/addnote"
-              element={
-                <AddNote
-                  userId={currentUser ? currentUser.uid : null}
-                  username={username}
-                />
-              }
-            />
-          </Routes>
-        </div>
-      </Router>
-    </LoadScript>
+    <ThemeProvider theme={theme}>
+      <LoadScript googleMapsApiKey="AIzaSyDEkaa4poCV0gbL93m1AzdZohGboPO9rpg">
+        <Router>
+          <div>
+            <Routes>
+              <Route path="/notifications" element={<Notifications />} />
+              <Route
+                path="/signup"
+                element={currentUser ? <Navigate to="/" /> : <SignUp />}
+              />
+              <Route
+                path="/signin"
+                element={currentUser ? <Navigate to="/" /> : <SignIn />}
+              />
+              <Route
+                path="/"
+                element={
+                  <Home
+                    userId={currentUser ? currentUser.uid : null}
+                    username={username}
+                  />
+                }
+              />
+              <Route
+                path="/Profilo"
+                element={
+                  <Profilo
+                    userId={currentUser ? currentUser.uid : null}
+                    username={username}
+                  />
+                }
+              />
+              <Route
+                path="/addnote"
+                element={
+                  <AddNote
+                    userId={currentUser ? currentUser.uid : null}
+                    username={username}
+                  />
+                }
+              />
+            </Routes>
+          </div>
+        </Router>
+      </LoadScript>
+    </ThemeProvider>
   );
 }
 

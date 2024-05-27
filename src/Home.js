@@ -262,10 +262,10 @@ const Home = ({ userId, username }) => {
               center={currentPosition}
               radius={rangemax * 1000}
               options={{
-                strokeColor: "#bad1ff",
+                strokeColor: "#40916c",
                 strokeOpacity: 0.8,
                 strokeWeight: 2,
-                fillColor: "#dadde3",
+                fillColor: "#d8f3dc",
                 fillOpacity: 0.35,
               }}
               onClick={() => {

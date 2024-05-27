@@ -18,6 +18,7 @@ import {
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import "./App.css";
+import { Paper } from "@mui/material";
 
 function Profilo({ userId }) {
   const navigate = useNavigate();
@@ -130,25 +131,62 @@ function Profilo({ userId }) {
 
   return (
     <Grid container direction="column" alignItems="center" spacing={2}>
-      <Grid item>
-        <Avatar
-          alt="Foto Profilo"
-          src={url || "/path/to/default/profile/picture"}
-          sx={{ width: 100, height: 100, marginTop: 5 }}
-        />
-      </Grid>
-      <Grid item>
-        <Typography variant="h5">{username}</Typography>
-      </Grid>
-      <Grid item>
-        <Typography sx={{ marginTop: -2, marginBottom: 2 }} variant="body1">
-          {email}
-        </Typography>
-      </Grid>
-      <Grid item>
-        <Button variant="contained" color="primary" onClick={handleLogout}>
-          Logout
-        </Button>
+      <Grid
+        container
+        direction="column"
+        alignItems="center"
+        spacing={2}
+        style={{
+          backgroundColor: "#40916c",
+          paddingBottom: 30,
+          paddingTop: 10,
+        }}
+      >
+        <Grid item>
+          <Avatar
+            alt="Foto Profilo"
+            src={url || "/path/to/default/profile/picture"}
+            sx={{ width: 100, height: 100, marginTop: 5 }}
+            style={{
+              border: "3px solid white",
+            }}
+          />
+        </Grid>
+        <Grid item>
+          <Typography
+            variant="h5"
+            style={{
+              color: "white",
+              fontWeight: "bold",
+            }}
+          >
+            {username}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography
+            sx={{ marginTop: -2, marginBottom: 2 }}
+            style={{
+              color: "white",
+            }}
+            variant="body1"
+          >
+            {email}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleLogout}
+            style={{
+              color: "#40916c",
+              backgroundColor: "white",
+            }}
+          >
+            Logout
+          </Button>
+        </Grid>
       </Grid>
       <Grid item>
         <input type="file" onChange={handleChange} />
@@ -162,9 +200,8 @@ function Profilo({ userId }) {
         style={{ width: "100%" }}
       >
         <Typography variant="body1">Post: {userNotes.length}</Typography>
-        <Typography variant="body1">Followers: </Typography>
-        <Typography variant="body1">Seguiti: </Typography>
       </Grid>
+
       <div className="container">
         <div className="grid-container">
           {userNotes.map((note) => (
