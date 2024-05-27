@@ -24,7 +24,7 @@ const StyledTextField = styled(TextField)({
     borderRadius: 30, // Rimuove il bordo arrotondato
   },
   "& .MuiOutlinedInput-input": {
-    padding: "10px 14px", // Aggiunge un po' di margine interno
+    padding: "0px 0px", // Modifica il padding interno della barra di ricerca
   },
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: "white", // Cambia il colore del bordo in bianco
@@ -32,8 +32,8 @@ const StyledTextField = styled(TextField)({
   "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
     borderColor: "white", // Cambia il colore del bordo in bianco quando è in focus
   },
-  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-input": {
-    color: "black", // Cambia il colore del testo in nero quando è in focus
+  "& fieldset": {
+    padding: "0 0px", // Modifica il padding interno del fieldset
   },
   backgroundColor: "white", // Cambia il colore di sfondo in bianco
   borderRadius: 30, // Rimuove il bordo arrotondato

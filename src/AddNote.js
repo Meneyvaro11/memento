@@ -154,7 +154,7 @@ const AddNote = ({ onPublish }) => {
         value={noteData.text}
         placeholder="Scrivi la tua nota qui"
         multiline
-        rows={noteData.image ? 4 : 14}
+        rows={noteData.image ? 4 : 7}
         variant="outlined"
         fullWidth
         margin="dense"

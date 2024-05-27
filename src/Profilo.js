@@ -18,7 +18,6 @@ import {
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import "./App.css";
-import { Paper } from "@mui/material";
 
 function Profilo({ userId }) {
   const navigate = useNavigate();
@@ -199,7 +198,9 @@ function Profilo({ userId }) {
         justifyContent="space-around"
         style={{ width: "100%" }}
       >
-        <Typography variant="body1">Post: {userNotes.length}</Typography>
+        <Typography variant="body1">
+          Hai pubblicato {userNotes.length} note
+        </Typography>
       </Grid>
 
       <div className="container">
