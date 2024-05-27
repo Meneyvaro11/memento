@@ -1,0 +1,44 @@
+/* CARD PROFILO START */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0px;
+  width: 80%;
+  margin-top: 20px;
+  margin-left: 15px;
+  margin-bottom: 5rem;
+}
+
+.card {
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  padding: 5px;
+  transition: 0.3s;
+}
+
+.card:hover {
+  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+  padding: 0px 10px;
+}
+
+.text {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.date {
+  font-size: 12px;
+}
+
+/* CARD PROFILO END */

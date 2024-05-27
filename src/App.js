@@ -75,8 +75,24 @@ function App() {
                 />
               }
             />
-            <Route path="/Profilo" element={<Profilo />} />
-            <Route path="/addnote" element={<AddNote />} />
+            <Route
+              path="/Profilo"
+              element={
+                <Profilo
+                  userId={currentUser ? currentUser.uid : null}
+                  username={username}
+                />
+              }
+            />
+            <Route
+              path="/addnote"
+              element={
+                <AddNote
+                  userId={currentUser ? currentUser.uid : null}
+                  username={username}
+                />
+              }
+            />
           </Routes>
         </div>
       </Router>

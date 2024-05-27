@@ -4,16 +4,44 @@ import { auth, storage, db } from "./firebaseConfig";
 import { signOut } from "firebase/auth";
 import { Avatar, Button, Typography, Grid } from "@mui/material";
 import BottomNavigationBar from "./BottomNavigationBar";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  query,
+  where,
+  collection,
+  getDocs,
+  addDoc,
+} from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
+import "./App.css";
 
-function Profilo() {
+function Profilo({ userId }) {
   const navigate = useNavigate();
   const [username, setUsername] = useState(""); // Aggiungi qui il valore iniziale dell'username
   const [email, setEmail] = useState(""); // Aggiungi qui il valore iniziale dell'email
   const [image, setImage] = useState(null);
   const [url, setUrl] = useState("");
+  const [userNotes, setUserNotes] = useState([]);
+
+  useEffect(() => {
+    const fetchUserNotes = async () => {
+      if (userId) {
+        const q = query(collection(db, "notes"), where("userId", "==", userId));
+        const querySnapshot = await getDocs(q);
+        const notesData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUserNotes(notesData);
+      }
+    };
+
+    fetchUserNotes();
+  }, [userId]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -133,14 +161,30 @@ function Profilo() {
         justifyContent="space-around"
         style={{ width: "100%" }}
       >
-        <Typography variant="body1">Post: 10</Typography>{" "}
-        {/* Aggiungi qui il numero di post */}
-        <Typography variant="body1">Followers: 20</Typography>{" "}
-        {/* Aggiungi qui il numero di followers */}
-        <Typography variant="body1">Seguiti: 30</Typography>{" "}
-        {/* Aggiungi qui il numero di seguiti */}
+        <Typography variant="body1">Post: {userNotes.length}</Typography>
+        <Typography variant="body1">Followers: </Typography>
+        <Typography variant="body1">Seguiti: </Typography>
       </Grid>
-
+      <div className="container">
+        <div className="grid-container">
+          {userNotes.map((note) => (
+            <div className="card" key={note.id}>
+              <div className="card-content">
+                <h3 className="text">{note.text.substring(0, 6)}..</h3>
+                <p className="date">
+                  {" "}
+                  {note.timestamp
+                    ? note.timestamp.toDate().toLocaleString("it-IT", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })
+                    : ""}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
       <Grid item>
         <BottomNavigationBar />
       </Grid>

@@ -185,6 +185,7 @@ const NoteCard = ({ note, onDelete, userId }) => {
           />
           <Box>
             <Typography variant="subtitle1">{note.userName}</Typography>
+
             <Typography variant="body2" color="text.secondary">
               {note.text}
             </Typography>
@@ -296,6 +297,16 @@ const NoteCard = ({ note, onDelete, userId }) => {
                 </Tooltip>
               )}
             </CardActions>
+            <Typography variant="body2">
+              {note.timestamp
+                ? note.timestamp
+                    .toDate()
+                    .toLocaleString("it-IT", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })
+                : ""}
+            </Typography>
           </Box>
         </Box>
       </CardContent>

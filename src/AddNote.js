@@ -48,6 +48,7 @@ const AddNote = ({ onPublish }) => {
 
   // Ottieni il nome dell'utente dall'oggetto auth
   const userName = auth.currentUser ? auth.currentUser.displayName : "Anonimo";
+  const userId = auth.currentUser ? auth.currentUser.uid : null;
 
   // Ottieni la data e l'ora correnti
   const currentTime = new Date();
@@ -115,6 +116,7 @@ const AddNote = ({ onPublish }) => {
       userName: userName,
       timestamp: currentTime,
       profileImageUrl: url,
+      userId: userId,
       likes: 0,
       comments: [],
     });
