@@ -166,6 +166,16 @@ const NoteCard = ({ note, onDelete, userId }) => {
     handleClose();
   };
 
+  function formatText(text, maxLength) {
+    let result = "";
+    while (text.length > maxLength) {
+      result += text.substring(0, maxLength) + "\n";
+      text = text.substring(maxLength);
+    }
+    result += text;
+    return result;
+  }
+
   return (
     <Card
       variant="outlined"
@@ -186,8 +196,13 @@ const NoteCard = ({ note, onDelete, userId }) => {
           <Box>
             <Typography variant="subtitle1">{note.userName}</Typography>
 
-            <Typography variant="body2" color="text.secondary">
-              {note.text}
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              style={{ whiteSpace: "pre-wrap" }}
+            >
+              {formatText(note.text, 35)}{" "}
+              {/* Ad esempio, per far andare a capo ogni 50 caratteri */}
             </Typography>
             {note.image && (
               <img
@@ -299,12 +314,10 @@ const NoteCard = ({ note, onDelete, userId }) => {
             </CardActions>
             <Typography variant="body2">
               {note.timestamp
-                ? note.timestamp
-                    .toDate()
-                    .toLocaleString("it-IT", {
-                      dateStyle: "short",
-                      timeStyle: "short",
-                    })
+                ? note.timestamp.toDate().toLocaleString("it-IT", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })
                 : ""}
             </Typography>
           </Box>

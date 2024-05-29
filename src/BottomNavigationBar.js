@@ -39,7 +39,7 @@ function BottomNavigationBar() {
   const style = {
     position: "fixed",
     bottom: 0,
-    top: "38%",
+    top: "25%",
     left: "0%",
     right: "0%",
     width: "100%",

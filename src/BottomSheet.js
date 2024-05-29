@@ -1,8 +1,6 @@
 // BottomSheet.js
 import React from "react";
-import Slide from "@mui/material/Slide";
-import Drawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
+import { Drawer, Slide, Box } from "@mui/material";
 
 const BottomSheet = ({ open, onClose, children }) => {
   return (
@@ -10,7 +8,7 @@ const BottomSheet = ({ open, onClose, children }) => {
       anchor="bottom"
       open={open}
       onClose={onClose}
-      transitionDuration={250}
+      transitionDuration={250} // Aumenta la durata dell'animazione a 1000 millisecondi (1 secondo)
       PaperProps={{
         sx: {
           position: "absolute",

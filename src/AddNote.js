@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { storage, db, auth } from "./firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getDoc, doc, collection, addDoc } from "firebase/firestore";
 import {
-  getDoc,
-  doc,
-  collection,
-  addDoc,
-  updateDoc,
-  arrayUnion,
-} from "firebase/firestore";
-import { TextField, Button, IconButton, Box, Avatar } from "@mui/material";
+  TextField,
+  Button,
+  IconButton,
+  Box,
+  Avatar,
+  CircularProgress,
+} from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import Videocam from "@mui/icons-material/Videocam";
 import Mic from "@mui/icons-material/Mic";
-import Send from "@mui/icons-material/Send";
 import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography"; // Aggiungi questa importazione
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const Input = styled("input")({
   display: "none",
@@ -54,9 +55,12 @@ const AddNote = ({ onPublish }) => {
   const currentTime = new Date();
 
   const [location, setLocation] = useState({ lat: null, lng: null });
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
 
   // Aggiungi uno stato per tracciare il numero di caratteri
   const [charCount, setCharCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   // Modifica handleInputChange per aggiornare il contatore dei caratteri
   const handleInputChange = (e) => {
@@ -87,10 +91,29 @@ const AddNote = ({ onPublish }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
     if (location.lat == null || location.lng == null) {
-      console.error("Posizione non disponibile.");
+      setMessage("Posizione non disponibile.");
+      setOpen(true);
+      setLoading(false);
       return; // Esci dalla funzione se la posizione non è stata ottenuta
+    }
+
+    // Controlla se il campo di testo e i contenuti multimediali sono vuoti
+    if (
+      !noteData.text &&
+      !noteData.image &&
+      !noteData.video &&
+      !noteData.audio
+    ) {
+      setMessage(
+        "Il campo di testo e i contenuti multimediali non possono essere entrambi vuoti."
+      );
+      setLoading(false);
+      setOpen(true);
+
+      return; // Esci dalla funzione
     }
 
     // Carica i file su Firebase Storage e ottieni gli URL
@@ -128,6 +151,7 @@ const AddNote = ({ onPublish }) => {
     if (onPublish) {
       onPublish();
     }
+    setLoading(false);
   };
 
   return (
@@ -142,6 +166,19 @@ const AddNote = ({ onPublish }) => {
         alignItems: "center",
       }}
     >
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={() => setOpen(false)}
+      >
+        <Alert
+          onClose={() => setOpen(false)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <Avatar
           sx={{ mr: 1 }}
@@ -158,8 +195,8 @@ const AddNote = ({ onPublish }) => {
         variant="outlined"
         fullWidth
         margin="dense"
-        maxLength={170}
         onChange={handleInputChange}
+        inputProps={{ maxLength: 170 }}
         sx={{
           marginBottom: 2,
         }}
@@ -196,13 +233,12 @@ const AddNote = ({ onPublish }) => {
       )}
 
       <Box
-        style={{ position: "fixed", bottom: 0 }}
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          width: "93%",
+          width: "100%",
           alignItems: "center",
-          mt: 1,
+          mt: 0,
           mb: 2,
         }}
       >
@@ -247,8 +283,13 @@ const AddNote = ({ onPublish }) => {
             <Mic />
           </IconButton>
         </Box>
-        <Button variant="contained" endIcon={<Send />} onClick={handleSubmit}>
-          Pubblica
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={loading} // Disabilita il pulsante durante il caricamento
+          onClick={handleSubmit}
+        >
+          {loading ? <CircularProgress size={24} /> : "Pubblica"}
         </Button>
       </Box>
     </Box>

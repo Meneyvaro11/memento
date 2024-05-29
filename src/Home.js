@@ -65,6 +65,7 @@ const Home = ({ userId, username }) => {
   const rangemax = 0.03;
   const isBottomSheetOpenRef = useRef(isBottomSheetOpen);
   const zoom = mapRef.current ? mapRef.current.zoom : 19;
+  const [isWithinRange, setIsWithinRange] = useState(false);
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -123,7 +124,7 @@ const Home = ({ userId, username }) => {
   }, [navigate]);
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
+    const watchId = navigator.geolocation.watchPosition(
       function (position) {
         setCurrentPosition({
           lat: position.coords.latitude,
@@ -134,6 +135,8 @@ const Home = ({ userId, username }) => {
         console.error("Geolocation is not available");
       }
     );
+
+    return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
   const [notes, setNotes] = useState([]);
@@ -226,25 +229,29 @@ const Home = ({ userId, username }) => {
               note.location.lng
             );
 
-            if (distance <= rangemax) {
-              return (
-                <Marker
-                  key={index}
-                  position={{
-                    lat: note.location.lat,
-                    lng: note.location.lng,
-                  }}
-                  onClick={() => {
+            const isWithinRange = distance <= rangemax;
+
+            return (
+              <Marker
+                key={index}
+                position={{
+                  lat: note.location.lat,
+                  lng: note.location.lng,
+                }}
+                onClick={() => {
+                  if (isWithinRange) {
                     setSelectedNote(note);
                     setIsBottomSheetOpen(true);
-                  }}
-                  icon={{
-                    url: "note-sticky-solid.svg",
-                    scaledSize: new window.google.maps.Size(30, 30),
-                  }}
-                />
-              );
-            }
+                  }
+                }}
+                icon={{
+                  url: isWithinRange
+                    ? "note-sticky-solid.svg"
+                    : "note-sticky-solid-grey.svg",
+                  scaledSize: new window.google.maps.Size(30, 30),
+                }}
+              />
+            );
           }
 
           return null;
@@ -304,8 +311,10 @@ const Home = ({ userId, username }) => {
                     note.location.lat,
                     note.location.lng
                   );
+
                   return distance <= rangemax;
                 }
+
                 return false;
               })
               .map((note) => (
