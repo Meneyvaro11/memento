@@ -14,6 +14,7 @@ import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import BottomSheet from "./BottomSheet";
 import NoteCard from "./NoteCard";
+import zIndex from "@mui/material/styles/zIndex";
 
 const Container = {
   width: "100%",
@@ -339,6 +340,7 @@ const Home = ({ userId, username }) => {
 
                 return false;
               })
+              .sort((a, b) => b.timestamp - a.timestamp)
               .map((note) => (
                 <NoteCard
                   key={note.id}

@@ -17,6 +17,8 @@ import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography"; // Aggiungi questa importazione
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import LibraryMusic from "@mui/icons-material/LibraryMusic";
+import ReactAudioPlayer from "react-audio-player";
 
 const Input = styled("input")({
   display: "none",
@@ -88,6 +90,25 @@ const AddNote = ({ onPublish }) => {
       }
     );
   }, []);
+
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioData, setAudioData] = useState([]);
+
+  const handleMicrophoneClick = () => {
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setMediaRecorder(null);
+    } else {
+      const newMediaRecorder = new MediaRecorder(
+        window.navigator.mediaDevices.getUserMedia({ audio: true })
+      );
+      newMediaRecorder.ondataavailable = (e) => {
+        setAudioData((prevAudioData) => [...prevAudioData, e.data]);
+      };
+      newMediaRecorder.start();
+      setMediaRecorder(newMediaRecorder);
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -211,6 +232,38 @@ const AddNote = ({ onPublish }) => {
       >
         {charCount}/170
       </Box>
+      {noteData.video && (
+        <Box sx={{ position: "relative" }}>
+          <video
+            src={URL.createObjectURL(noteData.video)}
+            style={{
+              width: "20%",
+              height: "auto",
+              borderRadius: "10px",
+              marginTop: "1rem",
+            }}
+            controls
+          />
+          <Button
+            onClick={() => setNoteData({ ...noteData, video: null })}
+            sx={{ position: "absolute", top: 0, right: 0 }}
+          >
+            Elimina
+          </Button>
+        </Box>
+      )}
+
+      {noteData.audio && (
+        <ReactAudioPlayer
+          src={noteData.audio}
+          controls
+          style={{
+            width: "100%",
+            marginBottom: "1rem",
+          }}
+        />
+      )}
+
       {noteData.image && (
         <Box sx={{ position: "relative" }}>
           <img
@@ -275,13 +328,22 @@ const AddNote = ({ onPublish }) => {
               <Videocam />
             </IconButton>
           </label>
-          <IconButton
-            color="primary"
-            aria-label="record audio"
-            component="span"
-          >
-            <Mic />
-          </IconButton>
+          <label htmlFor="icon-button-file-audio">
+            <Input
+              accept="audio/*"
+              id="icon-button-file-audio"
+              type="file"
+              name="audio"
+              onChange={handleFileChange}
+            />
+            <IconButton
+              color="primary"
+              aria-label="upload audio"
+              component="span"
+            >
+              <LibraryMusic />
+            </IconButton>
+          </label>
         </Box>
         <Button
           variant="contained"

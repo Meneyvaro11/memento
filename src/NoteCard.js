@@ -20,7 +20,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
-import ShareIcon from "@mui/icons-material/Share";
+import ContentCopy from "@mui/icons-material/ContentCopy";
 import Avatar from "@mui/material/Avatar";
 import CardActions from "@mui/material/CardActions";
 import Box from "@mui/material/Box";
@@ -35,7 +35,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
-import moment from "moment";
+import ReactAudioPlayer from "react-audio-player";
 
 const NoteCard = ({ note, onDelete, userId }) => {
   const [likes, setLikes] = useState(note.likes ? note.likes.length : 0);
@@ -83,24 +83,6 @@ const NoteCard = ({ note, onDelete, userId }) => {
     });
   };
 
-  const shareNote = async (note) => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "Nota",
-          text: note.text,
-          url: window.location.href, // o l'URL specifico della nota, se disponibile
-        });
-        console.log("Nota condivisa con successo");
-      } catch (error) {
-        console.log("Errore nella condivisione della nota", error);
-      }
-    } else {
-      console.log("La Web Share API non è supportata su questo browser");
-    }
-  };
-
-  <Button onClick={() => shareNote(note)}>Condividi</Button>;
   const handleLike = async () => {
     const noteRef = doc(db, "notes", note.id);
 
@@ -220,14 +202,38 @@ const NoteCard = ({ note, onDelete, userId }) => {
           <Box>
             <Typography variant="subtitle1">{note.userName}</Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              style={{ whiteSpace: "pre-wrap" }}
-            >
-              {formatText(note.text, 35)}{" "}
-              {/* Ad esempio, per far andare a capo ogni 50 caratteri */}
-            </Typography>
+            {note.text && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                style={{ wordWrap: "break-word" }}
+              >
+                {formatText(note.text, 35)}{" "}
+                {/* Ad esempio, per far andare a capo ogni 50 caratteri */}
+              </Typography>
+            )}
+            {note.audio && (
+              <ReactAudioPlayer
+                src={note.audio}
+                controls
+                style={{
+                  width: "120%",
+                  marginTop: "1rem",
+                }}
+              />
+            )}
+            {note.video && (
+              <video
+                src={note.video}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  borderRadius: "10px",
+                  marginTop: "1rem",
+                }}
+                controls
+              />
+            )}
             {note.image && (
               <img
                 src={note.image}
@@ -276,34 +282,39 @@ const NoteCard = ({ note, onDelete, userId }) => {
                       <DialogContent>
                         <List style={{ maxHeight: "60vh", overflow: "auto" }}>
                           {note.comments &&
-                            note.comments.map((comment, index) => (
-                              <ListItem key={index}>
-                                <ListItemAvatar>
-                                  <Avatar src={comment.profileImageUrl} />
-                                </ListItemAvatar>
-                                <ListItemText
-                                  style={{ wordWrap: "break-word" }}
-                                  primary={comment.username}
-                                  secondary={
-                                    <>
-                                      <Typography variant="body2">
-                                        {`${comment.text}`}
-                                      </Typography>
-                                      <Typography variant="body2">
-                                        {note.timestamp
-                                          ? note.timestamp
-                                              .toDate()
-                                              .toLocaleString("it-IT", {
-                                                dateStyle: "short",
-                                                timeStyle: "short",
-                                              })
-                                          : ""}
-                                      </Typography>
-                                    </>
-                                  }
-                                />
-                              </ListItem>
-                            ))}
+                            note.comments
+                              .sort(
+                                (a, b) =>
+                                  new Date(b.timestamp) - new Date(a.timestamp)
+                              )
+                              .map((comment, index) => (
+                                <ListItem key={index}>
+                                  <ListItemAvatar>
+                                    <Avatar src={comment.profileImageUrl} />
+                                  </ListItemAvatar>
+                                  <ListItemText
+                                    style={{ wordWrap: "break-word" }}
+                                    primary={comment.username}
+                                    secondary={
+                                      <>
+                                        <Typography variant="body2">
+                                          {`${comment.text}`}
+                                        </Typography>
+                                        <Typography variant="body2">
+                                          {comment.timestamp
+                                            ? comment.timestamp
+                                                .toDate()
+                                                .toLocaleString("it-IT", {
+                                                  dateStyle: "short",
+                                                  timeStyle: "short",
+                                                })
+                                            : ""}
+                                        </Typography>
+                                      </>
+                                    }
+                                  />
+                                </ListItem>
+                              ))}
                         </List>
                       </DialogContent>
                       <Box display="flex" justifyContent="center">
@@ -335,12 +346,28 @@ const NoteCard = ({ note, onDelete, userId }) => {
               <Typography variant="body2">
                 {note.comments ? note.comments.length : 0}
               </Typography>
-              <Tooltip title="Condividi">
-                <IconButton onClick={() => shareNote(note)} aria-label="share">
-                  <ShareIcon />
+              <Tooltip title="Copia contenuto">
+                <IconButton
+                  aria-label="share"
+                  onClick={() => {
+                    navigator.clipboard
+                      .writeText(note.text)
+                      .then(() => {
+                        // Il contenuto della nota è stato copiato con successo
+                      })
+                      .catch((err) => {
+                        // Non è stato possibile copiare il contenuto della nota
+                        console.error(
+                          "Errore durante la copia del contenuto della nota: ",
+                          err
+                        );
+                      });
+                  }}
+                >
+                  <ContentCopy />
                 </IconButton>
               </Tooltip>
-              <Typography variant="body2">0{note.shares}</Typography>
+              <Typography variant="body2">Copia</Typography>
               {username === note.userName && (
                 <Tooltip title="Elimina">
                   <IconButton
