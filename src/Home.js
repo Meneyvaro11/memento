@@ -134,20 +134,22 @@ const Home = ({ userId, username }) => {
     if (!navigator.geolocation) {
       console.error("Geolocation is not supported by your browser");
     } else {
-      watchId = navigator.geolocation.watchPosition(
+      navigator.geolocation.getCurrentPosition(
         (position) => {
+          // La posizione è stata ottenuta con successo
           setCurrentPosition({
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
         },
         (error) => {
-          console.error(error);
+          // Si è verificato un errore durante l'ottenimento della posizione
+          console.error("Errore durante l'ottenimento della posizione", error);
         },
         {
-          enableHighAccuracy: true,
-          maximumAge: 30000,
-          timeout: 27000,
+          enableHighAccuracy: true, // Abilita la modalità ad alta precisione
+          timeout: 5000, // Imposta un timeout di 5 secondi
+          maximumAge: 0, // Non accetta posizioni in cache
         }
       );
     }
