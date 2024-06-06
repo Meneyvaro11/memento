@@ -134,7 +134,7 @@ const Home = ({ userId, username }) => {
     if (!navigator.geolocation) {
       console.error("Geolocation is not supported by your browser");
     } else {
-      navigator.geolocation.getCurrentPosition(
+      watchId = navigator.geolocation.watchPosition(
         (position) => {
           // La posizione è stata ottenuta con successo
           setCurrentPosition({
