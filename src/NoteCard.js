@@ -242,12 +242,12 @@ const NoteCard = ({ note, onDelete, userId }) => {
                     onClose={handleClose}
                     PaperProps={{
                       style: {
-                        height: "100vh",
+                        height: "100%",
                         width: "100vw",
                       },
                     }}
                   >
-                    <Box display="flex" flexDirection="column" height="100vh">
+                    <Box display="flex" flexDirection="column" height="100%">
                       <DialogTitle>Commenti</DialogTitle>
                       <DialogContent>
                         <List>
