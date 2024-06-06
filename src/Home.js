@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { GoogleMap, Marker, Circle } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  Circle,
+  MarkerClusterer,
+} from "@react-google-maps/api";
 import TopNavbar from "./TopNavbar";
 import BottomNavigationBar from "./BottomNavigationBar";
 import Box from "@mui/material/Box";
@@ -124,19 +129,34 @@ const Home = ({ userId, username }) => {
   }, [navigate]);
 
   useEffect(() => {
-    const watchId = navigator.geolocation.watchPosition(
-      function (position) {
-        setCurrentPosition({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-      },
-      function () {
-        console.error("Geolocation is not available");
-      }
-    );
+    let watchId;
 
-    return () => navigator.geolocation.clearWatch(watchId);
+    if (!navigator.geolocation) {
+      console.error("Geolocation is not supported by your browser");
+    } else {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          setCurrentPosition({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error(error);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 30000,
+          timeout: 27000,
+        }
+      );
+    }
+
+    return () => {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
   }, []);
 
   const [notes, setNotes] = useState([]);
@@ -248,7 +268,7 @@ const Home = ({ userId, username }) => {
                   url: isWithinRange
                     ? "note-sticky-solid.svg"
                     : "note-sticky-solid-grey.svg",
-                  scaledSize: new window.google.maps.Size(30, 30),
+                  scaledSize: new window.google.maps.Size(25, 25),
                 }}
               />
             );
