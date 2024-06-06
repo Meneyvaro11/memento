@@ -35,6 +35,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
+import moment from "moment";
 
 const NoteCard = ({ note, onDelete, userId }) => {
   const [likes, setLikes] = useState(note.likes ? note.likes.length : 0);
@@ -56,6 +57,7 @@ const NoteCard = ({ note, onDelete, userId }) => {
   }, [note.id]);
 
   const [url, setUrl] = useState("");
+  const currentTime = new Date();
 
   useEffect(() => {
     const fetchProfileImage = async () => {
@@ -68,6 +70,8 @@ const NoteCard = ({ note, onDelete, userId }) => {
         }
       }
     };
+
+    fetchProfileImage();
   }, []);
 
   const deleteComment = async (index) => {
@@ -79,6 +83,24 @@ const NoteCard = ({ note, onDelete, userId }) => {
     });
   };
 
+  const shareNote = async (note) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Nota",
+          text: note.text,
+          url: window.location.href, // o l'URL specifico della nota, se disponibile
+        });
+        console.log("Nota condivisa con successo");
+      } catch (error) {
+        console.log("Errore nella condivisione della nota", error);
+      }
+    } else {
+      console.log("La Web Share API non è supportata su questo browser");
+    }
+  };
+
+  <Button onClick={() => shareNote(note)}>Condividi</Button>;
   const handleLike = async () => {
     const noteRef = doc(db, "notes", note.id);
 
@@ -154,7 +176,9 @@ const NoteCard = ({ note, onDelete, userId }) => {
       username: username,
       text: comment,
       profileImageUrl: url,
-    }; // Modifica qui
+      timestamp: currentTime,
+      likes: 0,
+    };
 
     const newComments = note.comments
       ? [...note.comments, newComment]
@@ -250,7 +274,7 @@ const NoteCard = ({ note, onDelete, userId }) => {
                     <Box display="flex" flexDirection="column" height="100%">
                       <DialogTitle>Commenti</DialogTitle>
                       <DialogContent>
-                        <List>
+                        <List style={{ maxHeight: "60vh", overflow: "auto" }}>
                           {note.comments &&
                             note.comments.map((comment, index) => (
                               <ListItem key={index}>
@@ -258,8 +282,25 @@ const NoteCard = ({ note, onDelete, userId }) => {
                                   <Avatar src={comment.profileImageUrl} />
                                 </ListItemAvatar>
                                 <ListItemText
-                                  primary={comment.text}
-                                  secondary={`${comment.username}`}
+                                  style={{ wordWrap: "break-word" }}
+                                  primary={comment.username}
+                                  secondary={
+                                    <>
+                                      <Typography variant="body2">
+                                        {`${comment.text}`}
+                                      </Typography>
+                                      <Typography variant="body2">
+                                        {note.timestamp
+                                          ? note.timestamp
+                                              .toDate()
+                                              .toLocaleString("it-IT", {
+                                                dateStyle: "short",
+                                                timeStyle: "short",
+                                              })
+                                          : ""}
+                                      </Typography>
+                                    </>
+                                  }
                                 />
                               </ListItem>
                             ))}
@@ -295,7 +336,7 @@ const NoteCard = ({ note, onDelete, userId }) => {
                 {note.comments ? note.comments.length : 0}
               </Typography>
               <Tooltip title="Condividi">
-                <IconButton aria-label="share">
+                <IconButton onClick={() => shareNote(note)} aria-label="share">
                   <ShareIcon />
                 </IconButton>
               </Tooltip>
