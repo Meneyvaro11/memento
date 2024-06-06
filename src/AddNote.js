@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import Videocam from "@mui/icons-material/Videocam";
-import Mic from "@mui/icons-material/Mic";
 import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography"; // Aggiungi questa importazione
 import Snackbar from "@mui/material/Snackbar";

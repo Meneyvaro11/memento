@@ -14,7 +14,6 @@ import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import BottomSheet from "./BottomSheet";
 import NoteCard from "./NoteCard";
-import zIndex from "@mui/material/styles/zIndex";
 
 const Container = {
   width: "100%",

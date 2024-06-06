@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, storage, db } from "./firebaseConfig";
 import { signOut } from "firebase/auth";
-import { Avatar, Button, Typography, Grid } from "@mui/material";
+import { Avatar, Button, Typography, Grid, IconButton } from "@mui/material";
 import BottomNavigationBar from "./BottomNavigationBar";
 import {
   doc,
@@ -18,6 +18,8 @@ import {
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import "./App.css";
+import AddAPhoto from "@mui/icons-material/AddAPhoto";
+import FileUpload from "@mui/icons-material/FileUpload";
 
 function Profilo({ userId }) {
   const navigate = useNavigate();
@@ -56,6 +58,8 @@ function Profilo({ userId }) {
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [navigate]);
+
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const handleChange = (e) => {
     if (e.target.files[0]) {
@@ -129,7 +133,7 @@ function Profilo({ userId }) {
   }, []);
 
   return (
-    <Grid container direction="column" alignItems="center" spacing={2}>
+    <Grid container direction="column" alignItems="center">
       <Grid
         container
         direction="column"
@@ -173,36 +177,58 @@ function Profilo({ userId }) {
             {email}
           </Typography>
         </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleLogout}
-            style={{
-              color: "#40916c",
-              backgroundColor: "white",
-            }}
-          >
-            Logout
-          </Button>
+        <Grid
+          container
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Grid item>
+            <input
+              accept="image/*"
+              style={{ display: "none" }}
+              id="icon-button-file"
+              type="file"
+              onChange={handleChange}
+            />
+            <label htmlFor="icon-button-file">
+              <IconButton style={{ color: "#fff" }} component="span">
+                <AddAPhoto />
+              </IconButton>
+            </label>
+          </Grid>
+          <Grid item>
+            <IconButton style={{ color: "#fff" }} onClick={handleUpload}>
+              <FileUpload />
+            </IconButton>
+          </Grid>
+
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleLogout}
+              style={{
+                color: "#40916c",
+                backgroundColor: "white",
+              }}
+            >
+              Logout
+            </Button>
+          </Grid>
         </Grid>
-      </Grid>
-      <Grid item>
-        <input type="file" onChange={handleChange} />
-        <button onClick={handleUpload}>Carica</button>
       </Grid>
 
       <Grid
         item
         container
         justifyContent="space-around"
-        style={{ width: "100%" }}
+        style={{ width: "100%", marginTop: 20 }}
       >
         <Typography variant="body1">
           Hai pubblicato {userNotes.length} note
         </Typography>
       </Grid>
-
       <div className="container">
         <div className="grid-container">
           {userNotes.map((note) => (
