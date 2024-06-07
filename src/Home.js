@@ -196,7 +196,7 @@ const Home = ({ userId, username }) => {
   }, [notes]);
 
   const addNotification = async (note) => {
-    if (userId && isWithinRange(note, currentPosition, rangemax)) {
+    if (userId) {
       await addDoc(collection(db, "notifications"), {
         userId,
         message: `Nuova nota aggiunta: ${note.text}`,
