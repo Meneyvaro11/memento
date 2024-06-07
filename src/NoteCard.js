@@ -217,7 +217,7 @@ const NoteCard = ({ note, onDelete, userId }) => {
                 src={note.audio}
                 controls
                 style={{
-                  width: "120%",
+                  width: "100%",
                   marginTop: "1rem",
                 }}
               />

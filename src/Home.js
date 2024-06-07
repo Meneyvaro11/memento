@@ -10,7 +10,7 @@ import BottomNavigationBar from "./BottomNavigationBar";
 import Box from "@mui/material/Box";
 import { auth } from "./firebaseConfig";
 import { useNavigate } from "react-router-dom";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, addDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import BottomSheet from "./BottomSheet";
 import NoteCard from "./NoteCard";
@@ -136,20 +136,18 @@ const Home = ({ userId, username }) => {
     } else {
       watchId = navigator.geolocation.watchPosition(
         (position) => {
-          // La posizione è stata ottenuta con successo
           setCurrentPosition({
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
         },
         (error) => {
-          // Si è verificato un errore durante l'ottenimento della posizione
           console.error("Errore durante l'ottenimento della posizione", error);
         },
         {
-          enableHighAccuracy: true, // Abilita la modalità ad alta precisione
-          timeout: 5000, // Imposta un timeout di 5 secondi
-          maximumAge: 0, // Non accetta posizioni in cache
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
         }
       );
     }
@@ -185,11 +183,27 @@ const Home = ({ userId, username }) => {
       }));
 
       setNotes(newNotes);
+
+      // Aggiungi notifica per la nuova nota
+      newNotes.forEach((note) => {
+        if (!notes.some((existingNote) => existingNote.id === note.id)) {
+          addNotification(note);
+        }
+      });
     });
 
-    // Pulisci l'ascoltatore quando il componente si smonta
     return () => unsubscribe();
-  }, []);
+  }, [notes]);
+
+  const addNotification = async (note) => {
+    if (userId && isWithinRange(note, currentPosition, rangemax)) {
+      await addDoc(collection(db, "notifications"), {
+        userId,
+        message: `Nuova nota aggiunta: ${note.text}`,
+        timestamp: new Date(),
+      });
+    }
+  };
 
   const mapOptions = {
     streetViewControl: false,
