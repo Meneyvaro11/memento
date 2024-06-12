@@ -8,6 +8,9 @@ import {
   doc,
 } from "firebase/firestore";
 import { auth, db } from "./firebaseConfig";
+import "./Notifiche.css";
+import CloseIcon from "@mui/icons-material/Close";
+import BottomNavigationBar from "./BottomNavigationBar";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -43,16 +46,38 @@ const Notifications = () => {
   };
 
   return (
-    <div>
-      <h2>Centro Notifiche</h2>
-      {notifications.map((notification) => (
-        <div key={notification.id}>
-          {notification.message}
-          <button onClick={() => removeNotification(notification.id)}>
-            Rimuovi
-          </button>
-        </div>
-      ))}
+    <div className="cointainer">
+      <h2 style={{ marginBottom: "30px" }}>Centro Notifiche</h2>
+      {notifications
+        .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate())
+        .map((notification) => (
+          <div
+            className="text"
+            key={notification.id}
+            style={{
+              justifyContent: "space-between",
+              wordWrap: "break-word",
+            }}
+          >
+            <p>
+              <span style={{ fontWeight: 400 }}>{notification.userName}</span>
+            </p>
+            <p style={{ flex: 1 }}>
+              Ha aggiunto una nuova nota{" "}
+              <span style={{ fontWeight: 400 }}>{notification.message}</span>
+            </p>
+            <p
+              style={{ color: "#9c9c9c", fontWeight: 400, marginTop: "-10px" }}
+            >
+              {notification.timestamp.toDate().toLocaleString("it-IT", {
+                dateStyle: "short",
+                timeStyle: "short",
+              })}
+            </p>
+            {/* <CloseIcon onClick={() => removeNotification(notification.id)} /> */}
+          </div>
+        ))}
+      <BottomNavigationBar />
     </div>
   );
 };

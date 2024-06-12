@@ -10,7 +10,7 @@ import BottomNavigationBar from "./BottomNavigationBar";
 import Box from "@mui/material/Box";
 import { auth } from "./firebaseConfig";
 import { useNavigate } from "react-router-dom";
-import { collection, getDocs, onSnapshot, addDoc } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import BottomSheet from "./BottomSheet";
 import NoteCard from "./NoteCard";
@@ -87,6 +87,8 @@ const Home = ({ userId, username }) => {
       const bounds = mapRef.current.getBounds();
       if (bounds) {
         const visibleNotes = notes.filter((note) => {
+          if (!note.location || !currentPosition) return false;
+
           const notePos = new window.google.maps.LatLng(
             note.location.lat,
             note.location.lng
@@ -183,27 +185,10 @@ const Home = ({ userId, username }) => {
       }));
 
       setNotes(newNotes);
-
-      // Aggiungi notifica per la nuova nota
-      newNotes.forEach((note) => {
-        if (!notes.some((existingNote) => existingNote.id === note.id)) {
-          addNotification(note);
-        }
-      });
     });
 
     return () => unsubscribe();
-  }, [notes]);
-
-  const addNotification = async (note) => {
-    if (userId) {
-      await addDoc(collection(db, "notifications"), {
-        userId,
-        message: `Nuova nota aggiunta: ${note.text}`,
-        timestamp: new Date(),
-      });
-    }
-  };
+  }, []);
 
   const mapOptions = {
     streetViewControl: false,
@@ -246,7 +231,7 @@ const Home = ({ userId, username }) => {
 
   return (
     <div style={Container}>
-      <TopNavbar />
+      {/*<TopNavbar /> */}
 
       <GoogleMap
         mapContainerStyle={MapContainer}
